@@ -1,9 +1,17 @@
-import React, { VFC } from "react";
+import * as React from "react";
+import { createRouter } from "../routes";
+import { TopPage } from "../pages/TopPage";
 
-export const App: VFC = () => {
-  return (
-    <div>
-      <h1>hello</h1>
-    </div>
-  );
+const routes = [
+  {
+    exact: true,
+    path: "/",
+    component: TopPage,
+  },
+];
+
+const Router = createRouter({ routes });
+
+export const App: React.VFC = () => {
+  return <>{Router}</>;
 };
