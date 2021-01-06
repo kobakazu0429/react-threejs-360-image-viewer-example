@@ -5,12 +5,14 @@
   "repository": "ssh://git@github.com/kobakazu0429/react-threejs-360-image-viewer-example.git",
   "author": "kobakakzu0429 <kobakazu10@gmail.com>",
   "license": "MIT",
-  "scripts":{
+  "scripts": {
     "start": "parcel src/index.html"
   },
   "dependencies": {
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "react-three-fiber": "^5.3.11",
+    "three": "^0.124.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
