@@ -5,10 +5,18 @@ export class Viewer {
   private scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
 
+  private isUserInteracting = false;
+  private onPointerDownMouseX = 0;
+  private onPointerDownMouseY = 0;
+  private onPointerDownLon = 0;
+  private onPointerDownLat = 0;
+
   private pos = {
     lon: 0,
     lat: 0,
   };
+
+  container!: HTMLDivElement;
 
   constructor(containerId: string, image: "*.png") {
     this.camera = new THREE.PerspectiveCamera(
@@ -34,13 +42,20 @@ export class Viewer {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.appendDom(containerId);
+    const container = document.getElementById(containerId) as HTMLDivElement;
+    if (!container) return;
+    this.container = container;
+
+    this.appendDom();
     this.animate();
     this.addResizeEvent();
+    this.addEvent();
   }
 
   public update() {
-    this.pos.lon += 0.1;
+    if (this.isUserInteracting === false) {
+      this.pos.lon += 0.1;
+    }
 
     this.pos.lat = Math.max(-85, Math.min(85, this.pos.lat));
     const phi = THREE.MathUtils.degToRad(90 - this.pos.lat);
@@ -60,11 +75,8 @@ export class Viewer {
     this.update();
   }
 
-  private appendDom(containerId: string) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.appendChild(this.renderer.domElement);
+  private appendDom() {
+    this.container.appendChild(this.renderer.domElement);
   }
 
   private addResizeEvent() {
@@ -77,5 +89,53 @@ export class Viewer {
       },
       false
     );
+  }
+
+  private addEvent() {
+    const onPointerDown = (event: any) => {
+      if (event.isPrimary === false) return;
+
+      this.isUserInteracting = true;
+
+      this.onPointerDownMouseX = event.clientX;
+      this.onPointerDownMouseY = event.clientY;
+
+      this.onPointerDownLon = this.pos.lon;
+      this.onPointerDownLat = this.pos.lat;
+
+      document.addEventListener("pointermove", onPointerMove, false);
+      document.addEventListener("pointerup", onPointerUp, false);
+    };
+
+    const onPointerMove = (event: any) => {
+      if (event.isPrimary === false) return;
+
+      this.pos.lon =
+        (this.onPointerDownMouseX - event.clientX) * 0.1 +
+        this.onPointerDownLon;
+      this.pos.lat =
+        (event.clientY - this.onPointerDownMouseY) * 0.1 +
+        this.onPointerDownLat;
+    };
+
+    const onPointerUp = (event: any) => {
+      if (event.isPrimary === false) return;
+
+      this.isUserInteracting = false;
+
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+    };
+
+    const onDocumentMouseWheel = (event: any) => {
+      const fov = this.camera.fov + event.deltaY * 0.05;
+
+      this.camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
+
+      this.camera.updateProjectionMatrix();
+    };
+
+    this.container.addEventListener("pointerdown", onPointerDown, false);
+    document.addEventListener("wheel", onDocumentMouseWheel, false);
   }
 }
