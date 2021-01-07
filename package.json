@@ -6,7 +6,8 @@
   "author": "kobakakzu0429 <kobakazu10@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html",
+    "pure_start": "parcel src/pure_three.html"
   },
   "dependencies": {
     "react": "^17.0.1",
